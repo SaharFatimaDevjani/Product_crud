@@ -18,8 +18,8 @@ const ProductForm = () => {
   const { id } = useParams(); 
 
   const fetchData = async () => {
+    setLoading(true);
     if (id) {
-      setLoading(true);
       try {
         const res = await axios.get(`${apiURL}/${id}`);
         if (res.status === 200) {
@@ -31,6 +31,7 @@ const ProductForm = () => {
         setLoading(false);
       }
     }
+    setLoading(false)
   };
   
   useEffect(() => {
