@@ -8,34 +8,34 @@ const ProductForm = () => {
   const navigate = useNavigate();
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
+  const[submit,setSubmit] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     price: 0,
   });
 
-  const { id } = useParams(); // Extracting id directly
+  const { id } = useParams(); 
 
-  // Fetch existing product data if editing
-  useEffect(() => {
-    const fetchData = async () => {
-      if (id) {
-        try {
-          setLoading(true);
-          const res = await axios.get(`${apiURL}/${id}`);
-          if (res.status === 200) {
-            setFormData(res.data);
-          }
-        } catch (error) {
-          setErrorMsg("Failed to fetch Data!");
-        } finally {
-          setLoading(false);
+  const fetchData = async () => {
+    if (id) {
+      setLoading(true);
+      try {
+        const res = await axios.get(`${apiURL}/${id}`);
+        if (res.status === 200) {
+          setFormData(res.data);
         }
+      } catch (error) {
+        setErrorMsg("Failed to fetch Data!");
+      } finally {
+        setLoading(false);
       }
-    };
-
+    }
+  };
+  
+  useEffect(() => {
     fetchData();
-  }, [id]); // Runs when id changes
+  }, [id]); 
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -50,10 +50,12 @@ const ProductForm = () => {
     if (!formData.name || !formData.description || !formData.price) {
       setErrorMsg("Fields can't be empty!");
       return;
+    }else{
+      setErrorMsg("");
     }
 
     try {
-      setLoading(true);
+      setSubmit(true)
       if (id) {
         await axios.put(`${apiURL}/${id}`, formData);
       } else {
@@ -80,28 +82,35 @@ const ProductForm = () => {
     } catch (error) {
       setErrorMsg("Couldn't perform the desired operation.");
     } finally {
-      setLoading(false);
+      setSubmit(false);
     }
   };
 
-  return (
-    <div className="product-form-container">
-      {errorMsg && <h1 className='error'>{errorMsg}</h1>}
-      <form className="product-form" onSubmit={handleSubmit}>
-        <h2>{id ? "Edit Product" : "Add Product"}</h2>
-
-        <input onChange={handleInputChange} type="text" name="name" placeholder="Product Name" className="product-input" value={formData.name} />
-
-        <textarea onChange={handleInputChange} name="description" placeholder="Description" className="product-textarea" value={formData.description}></textarea>
-
-        <input onChange={handleInputChange} type="number" name="price" placeholder="Price" className="product-input" value={formData.price} />
-
-        <button className="button blueBack" disabled={loading} type="submit">
-          {id ? (loading ? "Updating..." : "Update") : (loading ? "Adding..." : "Add")}
-        </button>
-      </form>
-    </div>
-  );
+  if (loading) {
+    return (
+      <h1>Loading...</h1>
+    )
+  } else{
+    return (
+      <div className="product-form-container">
+        {errorMsg && <h1 className='error'>{errorMsg}</h1>}
+        <form className="product-form" onSubmit={handleSubmit}>
+          <h2>{id ? "Edit Product" : "Add Product"}</h2>
+  
+          <input onChange={handleInputChange} type="text" name="name" placeholder="Product Name" className="product-input" value={formData.name} />
+  
+          <textarea onChange={handleInputChange} name="description" placeholder="Description" className="product-textarea" value={formData.description}></textarea>
+  
+          <input onChange={handleInputChange} type="number" name="price" placeholder="Price" className="product-input" value={formData.price} />
+  
+          <button className="button blueBack" disabled={loading} type="submit">
+            {id ? (submit ? "Updating..." : "Update") : (submit ? "Adding..." : "Add")}
+          </button>
+        </form>
+      </div>
+    );
+  }
+  
 };
 
 export default ProductForm;
